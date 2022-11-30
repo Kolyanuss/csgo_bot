@@ -4,3 +4,4 @@ dataset/
 test/
 train/
 val/
+*.xlsx
