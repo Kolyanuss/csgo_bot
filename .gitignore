@@ -6,3 +6,4 @@ train/
 val/
 *.xlsx
 *.h5
+temp_img/
