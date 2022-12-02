@@ -5,9 +5,9 @@ import mss
 
 with mss.mss() as sct:
     monitor = {"top": 26, "left": 0, "width": 800, "height": 600}
-
     i = 0
     start_time = time.time()
+    
     while True:
         img = np.array(sct.grab(monitor))
         cv2.imshow("OpenCV", img)
