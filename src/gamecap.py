@@ -1,25 +1,29 @@
-import pyautogui
 import cv2
 import numpy as np
 import time
+import mss
 
 sum_time = 0
 i = 0
-while True:
-    begin_time = time.time()
 
-    screen = pyautogui.screenshot()
-    screen_arr = np.array(screen)
-    screen_arr = screen_arr[27:890, 768:, :]
-    screen_arr = cv2.cvtColor(screen_arr, cv2.COLOR_RGB2BGR)
-    cv2.imshow("game capture", screen_arr)
+with mss.mss() as sct:
+    # The screen part to capture
+    monitor = {"top": 0, "left": 0, "width": 600, "height": 500}
 
-    mytime = time.time()-begin_time
-    print(mytime)
-    i+=1
-    sum_time += mytime
+    i = 0
+    while "Screen capturing":
+        last_time = time.time()
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-cv2.destroyAllWindows()
-print("avg time is: ", sum_time/i)
+        img = np.array(sct.grab(monitor))
+        cv2.imshow("OpenCV/Numpy normal", img)
+
+        mytime = time.time() - last_time
+        print(f"fps: {1 / mytime}")
+        i += 1
+        sum_time += mytime
+
+        if cv2.waitKey(25) & 0xFF == ord("q"):
+            cv2.destroyAllWindows()
+            break
+
+    print("avg fps is: ", 1/(sum_time/i))
