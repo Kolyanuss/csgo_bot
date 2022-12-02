@@ -7,3 +7,6 @@ val/
 *.xlsx
 *.h5
 temp_img/
+*.onnx
+*.mp4
+config_files/
