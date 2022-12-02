@@ -3,8 +3,6 @@ import numpy as np
 import time
 import mss
 
-i = 0
-
 with mss.mss() as sct:
     monitor = {"top": 26, "left": 0, "width": 800, "height": 600}
 
