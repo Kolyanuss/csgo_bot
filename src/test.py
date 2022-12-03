@@ -20,7 +20,7 @@ while True:
     # results
 
     # ----------
-    cv2.imshow("OpenCV", np.array(results))
+    cv2.imshow("OpenCV", results.permute(1, 2, 0))
     i += 1
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
