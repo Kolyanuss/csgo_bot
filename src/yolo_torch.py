@@ -82,28 +82,29 @@ def format_yolov5(frame):
 
 
 # model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
-model = torch.hub.load("ultralytics/yolov5", 'custom', path='config_files/yolov5s.pt')
+# model = torch.hub.load("ultralytics/yolov5", 'custom', path='config_files/yolov5s.pt') #+
 # model = torch.hub.load("WongKinYiu/yolov7", 'yolov7', force_reload=True)
-# model = torch.hub.load("WongKinYiu/yolov7", 'custom', path='config_files/yolov7.pt')
+# model = torch.hub.load("WongKinYiu/yolov7", 'custom', 'config_files/yolov7.pt') #+
+model = torch.hub.load("WongKinYiu/yolov7", 'custom', 'config_files/yolov7_csgo_v1.pt')
 class_list = []
 with open("config_files/classes.txt", "r") as f:
     class_list = [cname.strip() for cname in f.readlines()]
 colors = [(255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 0, 0)]
-monitor = (0, 26, 640, 666)
+monitor = (0, 26, 640, 640+26)
 camera = dxcam.create()
 
 camera.start(region=monitor)
 while True:
     frame = camera.get_latest_frame()
     # frame = format_yolov5(frame)  # todo: check
-    results = model(frame, size=INPUT_WIDTH)  # includes NMS
+    results = model(frame)  # includes NMS
     
     # draw boxes variant 1
     # dfResults = results.pandas().xyxy[0]
     # drawRectangles(frame, dfResults[['xmin', 'ymin', 'xmax', 'ymax']].astype(int))
 
     # draw boxes variant 2
-    draw_wrap_detection(frame, results.xyxy[0].cpu().numpy()) # some problem
+    draw_wrap_detection(frame, results.xyxy[0].cpu().numpy()) # some draw problem
 
     results.print() # info in console
     cv2.imshow("OpenCV", cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
