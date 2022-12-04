@@ -72,8 +72,8 @@ def format_yolov5(frame):
 
 
 # model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
-model = torch.hub.load("ultralytics/yolov5", 'custom',
-                       path='config_files/yolov5s.pt')
+# model = torch.hub.load("ultralytics/yolov5", 'custom', path='config_files/yolov5s.pt')
+model = torch.hub.load("WongKinYiu/yolov7", 'yolov7', force_reload=True)
 class_list = []
 with open("config_files/classes.txt", "r") as f:
     class_list = [cname.strip() for cname in f.readlines()]
