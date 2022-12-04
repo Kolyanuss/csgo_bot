@@ -18,7 +18,6 @@ def drawRectangles(image, dfResults):
     for _, row in dfResults.iterrows():
         print((row['xmin'], row['ymin']))
         image = cv2.rectangle(image, (row['xmin'], row['ymin']), (row['xmax'], row['ymax']), (255, 0, 0), 2)
-    # cv2.imshow("OpenCV", image)
 
 def draw_label(im, label, x, y, color):
     """Draw text onto image at location."""
@@ -107,7 +106,6 @@ while True:
     draw_wrap_detection(frame, results.xyxy[0].cpu().numpy()) # some problem
 
     results.print() # info in console
-    results.show() # info in console
     cv2.imshow("OpenCV", cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
