@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
-import time
-import mss
 import torch
+import dxcam
 
 INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
@@ -91,29 +90,27 @@ class_list = []
 with open("config_files/classes.txt", "r") as f:
     class_list = [cname.strip() for cname in f.readlines()]
 colors = [(255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 0, 0)]
-monitor = {"top": 26, "left": 0, "width": 640, "height": 640}
+monitor = (0, 26, 640, 666)
+camera = dxcam.create()
 
-i = 0
-start_time = time.time()
+camera.start(region=monitor)
 while True:
-    i += 1
-    frame = np.array(mss.mss().grab(monitor))
+    frame = camera.get_latest_frame()
     # frame = format_yolov5(frame)  # todo: check
     results = model(frame, size=INPUT_WIDTH)  # includes NMS
-    results.print()  # can be hide
     
     # draw boxes variant 1
     # dfResults = results.pandas().xyxy[0]
     # drawRectangles(frame, dfResults[['xmin', 'ymin', 'xmax', 'ymax']].astype(int))
 
     # draw boxes variant 2
-    draw_wrap_detection(frame, results.xyxy[0].cpu().numpy())
+    draw_wrap_detection(frame, results.xyxy[0].cpu().numpy()) # some problem
 
-    cv2.imshow("OpenCV", frame)
-    # ending
+    results.print() # info in console
+    results.show() # info in console
+    cv2.imshow("OpenCV", cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
-mytime = time.time() - start_time
+camera.stop()
 cv2.destroyAllWindows()
-print("avg fps is: ", 1/(mytime/i))
