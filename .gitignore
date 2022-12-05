@@ -3,7 +3,6 @@ test/
 train/
 val/
 temp_img/
-config_files/
 *.zip
 *.rar
 *.xlsx

@@ -56,7 +56,7 @@ def format_yolo(frame):
     result[0:row, 0:col] = frame[:, :, :3]
     return result
 
-
+# link to model: https://drive.google.com/file/d/1yMl9jUhqS9xfyBcZhjIXB1MoRcZ1mhfe/view?usp=sharing
 model = torch.hub.load("WongKinYiu/yolov7", 'custom', 'config_files/yolov7_csgo_v1.pt') #download custom model
 class_list = []
 with open("config_files/classes_csgo.txt", "r") as f:
