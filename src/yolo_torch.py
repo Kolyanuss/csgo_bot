@@ -3,21 +3,15 @@ import numpy as np
 import torch
 import dxcam
 
-INPUT_WIDTH = 1024
-INPUT_HEIGHT = 1024
-SCORE_THRESHOLD = 0.8
+INPUT_WIDTH = 640
+INPUT_HEIGHT = 640
 NMS_THRESHOLD = 0.8
-CONFIDENCE_THRESHOLD = 0.8
+CONFIDENCE_THRESHOLD = 0.5
 # Text parameters.
 FONT_FACE = cv2.FONT_HERSHEY_SIMPLEX
-FONT_SCALE = 0.7
+FONT_SCALE = 0.5
 THICKNESS = 1
 
-
-def drawRectangles(image, dfResults):
-    for _, row in dfResults.iterrows():
-        print((row['xmin'], row['ymin']))
-        image = cv2.rectangle(image, (row['xmin'], row['ymin']), (row['xmax'], row['ymax']), (255, 0, 0), 2)
 
 def draw_label(im, label, x, y, color):
     """Draw text onto image at location."""
@@ -25,10 +19,9 @@ def draw_label(im, label, x, y, color):
     text_size = cv2.getTextSize(label, FONT_FACE, FONT_SCALE, THICKNESS)
     dim, baseline = text_size[0], text_size[1]
     # Use text size to create a BLACK rectangle.
-    cv2.rectangle(im, (x,y), (x + dim[0], y + dim[1] + baseline), (0,0,0), cv2.FILLED)
+    cv2.rectangle(im, (x,y - dim[1] - baseline), (x + dim[0], y), (0,0,0), cv2.FILLED)
     # Display text inside the rectangle.
-    cv2.putText(im, label, (x, y + dim[1]), FONT_FACE, FONT_SCALE, color, THICKNESS, cv2.LINE_AA)
-
+    cv2.putText(im, label, (x, y - baseline), FONT_FACE, FONT_SCALE, color, THICKNESS, cv2.LINE_AA)
 
 def draw_wrap_detection(input_image, outputs_2darr):
     class_ids = []
@@ -42,19 +35,16 @@ def draw_wrap_detection(input_image, outputs_2darr):
     for row in outputs_2darr:
         confidence = row[4]
         if confidence >= CONFIDENCE_THRESHOLD:
-            classes_scores = row[5:]
-            class_id = np.argmax(classes_scores)
-            if (classes_scores[class_id] > SCORE_THRESHOLD):
-                confidences.append(confidence)
-                class_ids.append(class_id)
+            confidences.append(confidence)
+            class_ids.append(int(row[5]))
 
-                x, y, w, h = row[0], row[1], row[2], row[3]
-                left = int((x - 0.5 * w) * x_factor)
-                top = int((y - 0.5 * h) * y_factor)
-                width = int(w * x_factor)
-                height = int(h * y_factor)
-                box = np.array([left, top, width, height])
-                boxes.append(box)
+            x, y, w, h = row[0], row[1], row[2], row[3]
+            left = int(x * x_factor)
+            top = int(y * y_factor)
+            width = int(w * x_factor)
+            height = int(h * y_factor)
+            box = np.array([left, top, width, height])
+            boxes.append(box)
 
     # indexes = cv2.dnn.NMSBoxes(boxes, confidences, 
     #         CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
@@ -65,13 +55,12 @@ def draw_wrap_detection(input_image, outputs_2darr):
         color = colors[int(class_ids[i]) % len(colors)]
         # Draw bounding box.
         #  cv2.rectangle(frame, box, color, 2)
-        cv2.rectangle(frame, (left, top), (left + width, top + height), color, THICKNESS*3)
+        cv2.rectangle(frame, (left, top), (width, height), color, THICKNESS*3)
         # cv2.putText(frame, class_list[class_ids[i]], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
         # Class label.                      
         label = "{}:{:.2f}".format(class_list[class_ids[i]], confidences[i])             
         # Draw label.  
         draw_label(input_image, label, left, top, color)
-
 
 def format_yolov5(frame):
     row, col, _ = frame.shape
@@ -81,11 +70,10 @@ def format_yolov5(frame):
     return result
 
 
-# model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
-# model = torch.hub.load("ultralytics/yolov5", 'custom', path='config_files/yolov5s.pt') #+
-# model = torch.hub.load("WongKinYiu/yolov7", 'yolov7', force_reload=True)
-# model = torch.hub.load("WongKinYiu/yolov7", 'custom', 'config_files/yolov7.pt') #+
-model = torch.hub.load("WongKinYiu/yolov7", 'custom', 'config_files/yolov7_csgo_v1.pt')
+# model = torch.hub.load('ultralytics/yolov5', 'yolov5s') # download from git
+model = torch.hub.load("ultralytics/yolov5", 'custom', path='config_files/yolov5s.pt') # download from local
+# model = torch.hub.load("WongKinYiu/yolov7", 'custom', 'config_files/yolov7.pt') # download from local
+# model = torch.hub.load("WongKinYiu/yolov7", 'custom', 'config_files/yolov7_csgo_v1.pt') #download custom model
 class_list = []
 with open("config_files/classes.txt", "r") as f:
     class_list = [cname.strip() for cname in f.readlines()]
@@ -99,10 +87,6 @@ while True:
     # frame = format_yolov5(frame)  # todo: check
     results = model(frame)  # includes NMS
     
-    # draw boxes variant 1
-    # dfResults = results.pandas().xyxy[0]
-    # drawRectangles(frame, dfResults[['xmin', 'ymin', 'xmax', 'ymax']].astype(int))
-
     # draw boxes variant 2
     draw_wrap_detection(frame, results.xyxy[0].cpu().numpy()) # some draw problem
 
