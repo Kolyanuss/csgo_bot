@@ -1,2 +1,13 @@
+dataset/
+test/
+train/
+val/
+temp_img/
+config_files/
 *.zip
 *.rar
+*.xlsx
+*.mp4
+*.h5
+*.onnx
+*.pt
