@@ -54,9 +54,7 @@ def draw_wrap_detection(input_image, outputs_2darr):
         left,top,width,height = box[0],box[1],box[2],box[3]
         color = colors[int(class_ids[i]) % len(colors)]
         # Draw bounding box.
-        #  cv2.rectangle(frame, box, color, 2)
         cv2.rectangle(frame, (left, top), (width, height), color, THICKNESS*3)
-        # cv2.putText(frame, class_list[class_ids[i]], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
         # Class label.                      
         label = "{}:{:.2f}".format(class_list[class_ids[i]], confidences[i])             
         # Draw label.  
