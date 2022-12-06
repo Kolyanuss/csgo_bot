@@ -38,9 +38,6 @@ def draw_wrap_detection(input_image, outputs_2darr):
             width = int(w * x_factor)
             height = int(h * y_factor)
 
-            # print("-----------------")
-            # print(left," ",top)
-            # print("-----------------")
             color = colors[int(clas_id) % len(colors)]
             # Draw bounding box.
             cv2.rectangle(frame, (left, top), (width, height), color, THICKNESS*3)
@@ -58,9 +55,7 @@ def format_yolo(frame):
 
 # link to model: https://drive.google.com/file/d/1yMl9jUhqS9xfyBcZhjIXB1MoRcZ1mhfe/view?usp=sharing
 model = torch.hub.load("WongKinYiu/yolov7", 'custom', 'config_files/yolov7_csgo_v1.pt') #download custom model
-class_list = []
-with open("config_files/classes_csgo.txt", "r") as f:
-    class_list = [cname.strip() for cname in f.readlines()]
+class_list = ["c","ch","t","th"]
 colors = [(0, 0, 255), (0, 180, 255), (255, 0, 0), (255, 125, 0)]
 monitor = (0, 26, 1024, 768+26)
 camera = dxcam.create()
@@ -71,7 +66,7 @@ while True:
     frame = format_yolo(frame)
     results = model(frame)  # includes NMS
     
-    # draw boxes variant 2
+    # draw boxes
     draw_wrap_detection(frame, results.xyxy[0].cpu().numpy())
 
     # results.print() # info in console
