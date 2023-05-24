@@ -8,7 +8,8 @@ import aim
 ACTIVE_MODE = False
 PRINT_MODE = False
 DRAW_MODE = True
-monitor = (0, 26, 1024, 768+26)
+shift = 26 # зсув на 26 пікслеів нище щоб не записувати верхню рамку вікна
+monitor = (0, shift, 1024, 768+shift)
 camera = dxcam.create()
 
 
@@ -43,8 +44,8 @@ def main():
         results = detector.detect(frame)
 
         # AIM section
-        # aim.aim(500,500)
-        # break
+        for object in detector.get_detected_points(frame, results.xyxy[0].cpu().numpy()):
+            aim.aim(object[0],object[1]+shift)
 
         # info in console (optional)
         if PRINT_MODE:
