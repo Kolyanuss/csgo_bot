@@ -1,3 +1,10 @@
+"""
+The author of this source code is Dr. Benjamin J. Land (~BenLand100).
+And it has been used under the GPLv3 compatible licence.
+Thanks!.
+***
+URL: https://ben.land/post/2021/04/25/windmouse-human-mouse-movement/
+"""
 import numpy as np
 sqrt3 = np.sqrt(3)
 sqrt5 = np.sqrt(5)
