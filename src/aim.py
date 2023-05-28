@@ -25,9 +25,9 @@ def aim(target_x,target_y):
     print("FROM", current_x, current_y,"->",target_x,target_y)
     
     # Пересування курсора до нових координат з використанням алгоритму windmouse
-    # wind_mouse(current_x,current_y,target_x,target_y,
-    #            move_mouse=move_relative)
-    move_relative(target_x,target_y)
+    wind_mouse(current_x,current_y,target_x,target_y,
+               move_mouse=move_relative)
+    # move_relative(target_x,target_y)
 
     # Отримання оновленого положення курсора
     updated_x, updated_y = mouse.get_position()
@@ -36,3 +36,5 @@ def aim(target_x,target_y):
     # execution_time = time.time() - start_time
     # print("Aim time: {:.4f}".format(execution_time), "sec")
 
+def shoot():
+    mouse.click()

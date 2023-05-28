@@ -41,14 +41,6 @@ def start_listener():
         listener.join()
 
 
-def get_sorted_detection_points(results):
-    sorted_list = []
-    for row in detector.get_detection_mid_points(results.xyxy[0].cpu().numpy()):
-        print(row)
-        sorted_list.append(row)
-
-    return sorted_list
-
 def main():
     camera.start(region=monitor)
     global ACTIVE_MODE
@@ -60,9 +52,14 @@ def main():
         results = detector.detect(frame)
 
         # AIM section
+        global AIM_MODE
         if AIM_MODE:
-            for object in get_sorted_detection_points(results):
-                aim.aim(object[0],object[1]+shift)
+            point = detector.get_big_detect_mid_point(results.xyxy[0].cpu().numpy())
+            if point:
+                aim.aim(point[0],point[1]+shift)
+                aim.shoot()
+                AIM_MODE = False
+
 
         # info in console (optional)
         if PRINT_MODE:
@@ -71,7 +68,6 @@ def main():
         global DRAW_MODE
         if DRAW_MODE:
             # draw boxes in other window
-            # detector.draw_detection(frame, results.xyxy[0].cpu().numpy())
             detector.draw_detection(frame, results.xyxy[0].cpu().numpy())
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)           
             frame = cv2.resize(frame, (int(frame.shape[1]/2), int(frame.shape[0]/2)))

@@ -48,12 +48,16 @@ def draw_detection(input_image, nn_results):
         _draw_label(input_image, label, left, top, color)
 
 
-def get_detection_mid_points(nn_results):
-    result_points = []
+def get_big_detect_mid_point(nn_results):
+    maxArea = 0
+    maxPoint = None
     for row in _get_filtered_detection(nn_results):
-        cur_rectangle = (int(row[0]),int(row[1]),int(row[2]),int(row[3]))
-        result_points.append((*_get_center_point(*cur_rectangle), row[5]))
-    return result_points
+        rectangle = (int(row[0]),int(row[1]),int(row[2]),int(row[3]))
+        area = _get_area(*rectangle)
+        if area > maxArea:
+            maxArea = area
+            maxPoint = (*_get_center_point(*rectangle), row[5])
+    return maxPoint
 
 
 # def convert_to_yolo_format(frame):
