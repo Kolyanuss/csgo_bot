@@ -29,38 +29,48 @@ def _draw_label(im, label, x, y, color):
                 FONT_SCALE, color, THICKNESS, cv2.LINE_AA)
 
 
-def draw_detection(input_image, outputs_2darr):
-
-    for row in outputs_2darr:
+def draw_detection(input_image, nn_results):
+    for row in _get_filtered_detection(nn_results):
+        left = int(row[0])
+        top = int(row[1])
+        right = int(row[2])
+        bottom = int(row[3])
         confidence = row[4]
-        if confidence >= CONFIDENCE_THRESHOLD:
-            left = int(row[0])
-            top = int(row[1])
-            right = int(row[2])
-            bottom = int(row[3])
+        clas_id = int(row[5])
 
-            clas_id = int(row[5])
-
-            color = COLORS[int(clas_id) % len(COLORS)]
-            # Draw bounding box.
-            cv2.rectangle(input_image, (left, top),
-                          (right, bottom), color, THICKNESS*3)
-            # Class label.
-            label = "{}:{:.2f}".format(CLASS_LIST[clas_id], confidence)
-            # Draw label.
-            _draw_label(input_image, label, left, top, color)
+        color = COLORS[int(clas_id) % len(COLORS)]
+        # Draw bounding box.
+        cv2.rectangle(input_image, (left, top),
+                        (right, bottom), color, THICKNESS*3)
+        # Class label.
+        label = "{}:{:.2f}".format(CLASS_LIST[clas_id], confidence)
+        # Draw label.
+        _draw_label(input_image, label, left, top, color)
 
 
-def convert_to_yolo_format(frame):
-    row, col, _ = frame.shape
-    _max = max(col, row)
-    result = np.zeros((_max, _max, 3), np.uint8)
-    result[0:row, 0:col] = frame[:, :, :3]
-    return result
+def get_detection_mid_points(nn_results):
+    result_points = []
+    for row in _get_filtered_detection(nn_results):
+        cur_rectangle = (int(row[0]),int(row[1]),int(row[2]),int(row[3]))
+        result_points.append((_get_center_point(*cur_rectangle), row[5]))
+    return result_points
+
+
+# def convert_to_yolo_format(frame):
+#     row, col, _ = frame.shape
+#     _max = max(col, row)
+#     result = np.zeros((_max, _max, 3), np.uint8)
+#     result[0:row, 0:col] = frame[:, :, :3]
+#     return result
 
 
 def detect(frame):
     return MODEL(frame)  # includes NMS
+
+def _get_center_point(left,top,right,bottom):
+    mid_x = (left + right)/2
+    mid_y = (top + bottom)/2
+    return mid_x,mid_y
 
 def _get_intersection_area(rectangle_1, rectangle_2):
     x_overlap = max(0, min(rectangle_1[2], rectangle_2[2]) - max(rectangle_1[0], rectangle_2[0]))
@@ -68,17 +78,12 @@ def _get_intersection_area(rectangle_1, rectangle_2):
     intersection_area = x_overlap * y_overlap
     return intersection_area
 
-def _get_center_point(left,top,right,bottom):
-    mid_x = (left + right)/2
-    mid_y = (top + bottom)/2
-    return mid_x,mid_y
-
 def _get_area(left,top,right,bottom):
     return abs(left - right) * abs(top - bottom)
 
-def get_filtered_detection_points(outputs_2darr):
+def _get_filtered_detection(nn_results):
     confirmed_2darr = []
-    for row in outputs_2darr:
+    for row in nn_results:
         confidence = row[4]
         if confidence >= CONFIDENCE_THRESHOLD:
             confirmed_2darr.append(row)
@@ -90,7 +95,6 @@ def get_filtered_detection_points(outputs_2darr):
         class_name = row[5]
         # if class is head - add
         if class_name == 1 or class_name == 3: # head
-            # result_points.append((_get_center_point(*cur_rectangle), row[5]))
             result_points.append(row)
             continue
         
@@ -99,13 +103,12 @@ def get_filtered_detection_points(outputs_2darr):
         for new_row in confirmed_2darr:
             class_name2 = new_row[5]
             if class_name2 == 1 or class_name2 == 3: # head
-                rect2 = (new_row[0],new_row[1],new_row[2],new_row[3])
+                rect2 = (int(new_row[0]),int(new_row[1]),int(new_row[2]),int(new_row[3]))
                 if (_get_intersection_area(cur_rectangle,rect2) > 0.9*_get_area(*rect2)):
                     has_intersection_with_head = True
                     break # if body has intersection with head - we don`t add him to targets
         # add body to targets if has`t intersection with head
         if not has_intersection_with_head:
-            # result_points.append((_get_center_point(*cur_rectangle), row[5]))
             result_points.append(row)
 
     return result_points
