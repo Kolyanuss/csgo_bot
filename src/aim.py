@@ -13,8 +13,7 @@ def sleep_milliseconds(milliseconds):
 
 def move_relative(x, y):
     current_x, current_y = my_mouse.get_position()
-    # my_mouse.move_relative(int((x-current_x)*0.774), int((y-current_y)*0.774))
-    my_mouse.move_relative(int((x-current_x)*1.2), int((y-current_y)*1.2))
+    my_mouse.move_relative(int((x-current_x)*0.9), int((y-current_y)*0.9))
 
  
 def aim(target_x,target_y):
@@ -25,10 +24,9 @@ def aim(target_x,target_y):
     print("FROM", current_x, current_y,"->",target_x,target_y)
     
     # Пересування курсора до нових координат з використанням алгоритму windmouse
-    # wind_mouse(current_x,current_y,target_x,target_y,
-    #            move_mouse=my_mouse.move)
-    move_relative(target_x,target_y)
-    # my_mouse.move(target_x,target_y)
+    wind_mouse(current_x,current_y,target_x,target_y,
+               move_mouse=move_relative)
+    # move_relative(target_x,target_y)
 
     # Отримання оновленого положення курсора
     print("res:", my_mouse.get_position())

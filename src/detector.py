@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import torch
+import math
 
 CONFIDENCE_THRESHOLD = 0.85
 # Text parameters.
@@ -59,6 +60,17 @@ def get_big_detect_mid_point(nn_results):
             maxPoint = (*_get_center_point(*rectangle), row[5])
     return maxPoint
 
+def get_closest_object(nn_results):
+    # detect closest target
+    closest = 1000000
+    aim_rect = None
+    for row in _get_filtered_detection(nn_results):
+        rectangle = (int(row[0]),int(row[1]),int(row[2]),int(row[3]))
+        dist = math.dist([960, 540], [*_get_center_point(*rectangle)])
+        if dist < closest:
+            closest = dist
+            aim_rect = row
+    return aim_rect
 
 # def convert_to_yolo_format(frame):
 #     row, col, _ = frame.shape
@@ -103,7 +115,11 @@ def _get_filtered_detection(nn_results):
             continue
         
         has_intersection_with_head = False
-        # if not skipped - class is body / start find intersection with head
+        # if not skipped - class is body
+        # skip if object is very low
+        if cur_rectangle[3]<1040:
+            continue
+        # start find intersection with head
         for new_row in confirmed_2darr:
             class_name2 = new_row[5]
             if class_name2 == 1 or class_name2 == 3: # head
