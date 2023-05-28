@@ -6,6 +6,7 @@ from pynput.keyboard import Key, Listener as KeyListener
 import aim
 
 ACTIVE_MODE = True
+AIM_MODE = False
 PRINT_MODE = False
 DRAW_MODE = True
 # shift = 26 # зсув на 26 пікслеів нище щоб не записувати верхню рамку вікна
@@ -19,13 +20,18 @@ def on_press(key):
     global ACTIVE_MODE
     if key == Key.home and ACTIVE_MODE != True:
         ACTIVE_MODE = True
-        # print("ACTIVE MODE: ",ACTIVE_MODE)
         thread = threading.Thread(target=main)
         thread.start()
     if key == Key.end:
         ACTIVE_MODE = False
-        # print("ACTIVE MODE: ",ACTIVE_MODE)
-    if key == Key.esc:
+    global AIM_MODE
+    if key == Key.page_up and AIM_MODE != True:
+        AIM_MODE = True
+        print("AIM MODE: ",AIM_MODE)
+    if key == Key.page_down:
+        AIM_MODE = False
+        print("AIM MODE: ",AIM_MODE)
+    if key == Key.f1:
         return False
 
 def start_listener():
@@ -37,8 +43,9 @@ def start_listener():
 
 def get_sorted_detection_points(results):
     sorted_list = []
-    for row in detector.get_filtered_detection_points(results.xyxy[0].cpu().numpy()):
-        None
+    for row in detector.get_detection_mid_points(results.xyxy[0].cpu().numpy()):
+        print(row)
+        sorted_list.append(row)
 
     return sorted_list
 
@@ -49,14 +56,13 @@ def main():
     while ACTIVE_MODE:
         # take screen shot
         frame = camera.get_latest_frame()
-        # resize img to yolo format
-        # frame = detector.convert_to_yolo_format(frame)
         # show img to model and get result
         results = detector.detect(frame)
 
         # AIM section
-        # for object in get_sorted_detection_points(results):
-        #     aim.aim(object[0],object[1]+shift)
+        if AIM_MODE:
+            for object in get_sorted_detection_points(results):
+                aim.aim(object[0],object[1]+shift)
 
         # info in console (optional)
         if PRINT_MODE:
@@ -66,8 +72,7 @@ def main():
         if DRAW_MODE:
             # draw boxes in other window
             # detector.draw_detection(frame, results.xyxy[0].cpu().numpy())
-            detector.draw_detection(frame, 
-                detector.get_filtered_detection_points(results.xyxy[0].cpu().numpy()))
+            detector.draw_detection(frame, results.xyxy[0].cpu().numpy())
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)           
             frame = cv2.resize(frame, (int(frame.shape[1]/2), int(frame.shape[0]/2)))
             cv2.imshow("csgo inference", frame)

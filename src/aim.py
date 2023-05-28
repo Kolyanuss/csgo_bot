@@ -13,12 +13,12 @@ def move_relative(x, y):
         current_x, current_y = mouse.get_position()
         win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, x-current_x, y-current_y, 0, 0)
 
-def mouse_move_to(x,y):
+def move_absolute(x,y):
     mouse.move(x, y)    
     # sleep_milliseconds(1) # не працює нижче 10мс
     
 def aim(target_x,target_y):
-    start_time = time.time()
+    # start_time = time.time()
     # Отримання поточного положення курсора
     current_x, current_y = mouse.get_position()
     target_x,target_y = int(target_x),int(target_y)
@@ -33,6 +33,6 @@ def aim(target_x,target_y):
     updated_x, updated_y = mouse.get_position()
     print("res:", updated_x, updated_y)
     
-    execution_time = time.time() - start_time
+    # execution_time = time.time() - start_time
     # print("Aim time: {:.4f}".format(execution_time), "sec")
 
