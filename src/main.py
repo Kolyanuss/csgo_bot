@@ -1,8 +1,9 @@
 import cv2
+import math
 import dxcam
-import detector
 import threading
 from pynput.keyboard import Key, Listener as KeyListener
+import detector
 import aim
 
 ACTIVE_MODE = True
@@ -11,10 +12,9 @@ PRINT_MODE = False
 DRAW_MODE = True
 # shift = 26 # зсув на 26 пікслеів нище щоб не записувати верхню рамку вікна
 # monitor = (0, shift, 1024, 768+shift)
-shift = 0 # зсув на 26 пікслеів нище щоб не записувати верхню рамку вікна
 monitor = (0, 0, 1920, 1080)
 camera = dxcam.create()
-
+threshold = 10 # maximum deviation for a shot
 
 def on_press(key):
     global ACTIVE_MODE
@@ -25,10 +25,10 @@ def on_press(key):
     if key == Key.end:
         ACTIVE_MODE = False
     global AIM_MODE
-    if key == Key.page_up and AIM_MODE != True:
+    if key == Key.alt_l and AIM_MODE != True:
         AIM_MODE = True
         print("AIM MODE: ",AIM_MODE)
-    if key == Key.page_down:
+    if key == Key.alt_r:
         AIM_MODE = False
         print("AIM MODE: ",AIM_MODE)
     if key == Key.f1:
@@ -56,10 +56,10 @@ def main():
         if AIM_MODE:
             point = detector.get_big_detect_mid_point(results.xyxy[0].cpu().numpy())
             if point:
-                aim.aim(point[0],point[1]+shift)
+                # x1,y1 = aim.my_mouse.get_position()
+                aim.aim(point[0],point[1])
                 aim.shoot()
                 AIM_MODE = False
-
 
         # info in console (optional)
         if PRINT_MODE:
