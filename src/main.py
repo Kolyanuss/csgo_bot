@@ -43,12 +43,7 @@ def start_listener():
         listener.join()
 
 def is_cursor_inside_box(x, y, x1, y1, x2, y2):
-    min_x = min(x1, x2)
-    max_x = max(x1, x2)
-    min_y = min(y1, y2)
-    max_y = max(y1, y2)
-    
-    if min_x <= x <= max_x and min_y <= y <= max_y:
+    if min(x1, x2) <= x <= max(x1, x2) and min(y1, y2) <= y <= max(y1, y2):
         return True
     else:
         return False
@@ -83,7 +78,6 @@ def main():
         if AIM_MODE:
             box = detector.get_closest_object(results)
             if box is not None:
-                # rectangle = (int(box[0]),int(box[1]),int(box[2]),int(box[3]))
                 if is_cursor_inside_box(*mid_screen_xy,*cut_rectangle(box)):
                     aim.shoot()
                     sleep(0.11)
