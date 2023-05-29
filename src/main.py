@@ -8,13 +8,13 @@ import aim
 from custom_sleep import sleep
 
 ACTIVE_MODE = True
-AIM_MODE = False
+AIM_MODE = True
 PRINT_MODE = False
 DRAW_MODE = True
 # shift = 26 # зсув на 26 пікслеів нище щоб не записувати верхню рамку вікна
 # monitor = (0, shift, 1024, 768+shift)
 screen_resolution = (1920, 1080)
-mid_screen = (int(screen_resolution[0]/2), int(screen_resolution[1]/2))
+mid_screen_xy = (int(screen_resolution[0]/2), int(screen_resolution[1]/2))
 monitor = (0, 0, *screen_resolution)
 camera = dxcam.create()
 threshold = 10 # maximum deviation for a shot
@@ -77,20 +77,20 @@ def main():
         # take screen shot
         frame = camera.get_latest_frame()
         # show img to model and get result
-        results = detector.detect(frame)
+        results = detector.detect(frame)        
 
         # AIM section
         global AIM_MODE
         if AIM_MODE:
-            point = detector.get_closest_object(results.xyxy[0].cpu().numpy())
-            if point is not None:
-                # x1,y1 = aim.my_mouse.get_position()
-                rectangle = (int(point[0]),int(point[1]),int(point[2]),int(point[3]))
-                if is_cursor_inside_box(*mid_screen,*cut_rectangle(rectangle)):
+            box = detector.get_closest_object(results)
+            if box is not None:
+                rectangle = (int(box[0]),int(box[1]),int(box[2]),int(box[3]))
+                if is_cursor_inside_box(*mid_screen_xy,*cut_rectangle(rectangle)):
                     aim.shoot()
                     sleep(0.1)
                 else:
                     aim.aim(*detector._get_center_point(*rectangle))
+                    sleep(0.01)
                 # AIM_MODE = False
 
         # info in console (optional)
@@ -100,8 +100,8 @@ def main():
         global DRAW_MODE
         if DRAW_MODE:
             # draw boxes in other window
-            detector.draw_detection(frame, results.xyxy[0].cpu().numpy())
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)           
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            detector.new_draw_detection(frame,results)
             frame = cv2.resize(frame, (int(frame.shape[1]/2), int(frame.shape[0]/2)))
             cv2.imshow("csgo inference", frame)
             # break section
