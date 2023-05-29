@@ -9,9 +9,8 @@ from custom_sleep import sleep
 
 ACTIVE_MODE = True
 AIM_MODE = True
-PRINT_MODE = False
 DRAW_MODE = True
-# shift = 26 # зсув на 26 пікслеів нище щоб не записувати верхню рамку вікна
+# shift = 26 # зсув на 26 пікслеів нище щоб не записувати верхню рамку вікна (якщо віконний режим)
 # monitor = (0, shift, 1024, 768+shift)
 screen_resolution = (1920, 1080)
 mid_screen_xy = (int(screen_resolution[0]/2), int(screen_resolution[1]/2))
@@ -84,18 +83,16 @@ def main():
         if AIM_MODE:
             box = detector.get_closest_object(results)
             if box is not None:
-                rectangle = (int(box[0]),int(box[1]),int(box[2]),int(box[3]))
-                if is_cursor_inside_box(*mid_screen_xy,*cut_rectangle(rectangle)):
+                # rectangle = (int(box[0]),int(box[1]),int(box[2]),int(box[3]))
+                if is_cursor_inside_box(*mid_screen_xy,*cut_rectangle(box)):
+                    aim.shoot()
+                    sleep(0.11)
                     aim.shoot()
                     sleep(0.1)
                 else:
-                    aim.aim(*detector._get_center_point(*rectangle))
+                    aim.aim(*detector._get_center_point(*box))
                     sleep(0.01)
                 # AIM_MODE = False
-
-        # info in console (optional)
-        if PRINT_MODE:
-            results.print()
         
         global DRAW_MODE
         if DRAW_MODE:

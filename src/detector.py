@@ -5,7 +5,7 @@ import math
 from ultralytics import YOLO
 import supervision as sv
 
-CONFIDENCE_THRESHOLD = 0.85
+CONFIDENCE_THRESHOLD = 0.65
 # Text parameters.
 FONT_FACE = cv2.FONT_HERSHEY_SIMPLEX
 FONT_SCALE = 0.5
@@ -25,7 +25,7 @@ box_annotator = sv.BoxAnnotator(
 # link to model: https://drive.google.com/file/d/1yMl9jUhqS9xfyBcZhjIXB1MoRcZ1mhfe/view?usp=sharing
 # MODEL = torch.hub.load("WongKinYiu/yolov7", 'custom',
 #                        'config_files/yolov7_csgo_v1.pt')  # import custom model
-MODEL = YOLO('config_files/yolov8s_csgo_mirage-320-v62-pal-gen-bg-head.pt')
+MODEL = YOLO('config_files/yolov8m_csgo_3600img_640-640.pt')
 
 
 def get_closest_object(nn_results):
@@ -42,7 +42,7 @@ def get_closest_object(nn_results):
 
 
 def detect(frame):
-    result = MODEL(frame, agnostic_nms=True)[0]  # includes NMS
+    result = MODEL(frame, agnostic_nms=True,)[0]  # includes NMS
     return sv.Detections.from_yolov8(result)
 
 def new_draw_detection(frame, detections):
@@ -73,11 +73,11 @@ def _get_area(left,top,right,bottom):
     return abs(left - right) * abs(top - bottom)
 
 def _get_filtered_detection(nn_results):
-    confirmed_2darr = nn_results
-    # for row in nn_results:
-    #     confidence = row[4]
-    #     if confidence >= CONFIDENCE_THRESHOLD:
-    #         confirmed_2darr.append(row)
+    confirmed_2darr = []
+    for row in nn_results:
+        confidence = row[2]
+        if confidence >= CONFIDENCE_THRESHOLD:
+            confirmed_2darr.append(row)
 
     result_points = []
     for row in confirmed_2darr:
