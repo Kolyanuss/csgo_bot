@@ -25,7 +25,7 @@ box_annotator = sv.BoxAnnotator(
 # link to model: https://drive.google.com/file/d/1yMl9jUhqS9xfyBcZhjIXB1MoRcZ1mhfe/view?usp=sharing
 # MODEL = torch.hub.load("WongKinYiu/yolov7", 'custom',
 #                        'config_files/yolov7_csgo_v1.pt')  # import custom model
-MODEL = YOLO('config_files/yolov8m_csgo_3600img_640-640.pt')
+MODEL = YOLO('config_files/yolov8m_csgo_902img_1024.pt')
 
 
 def get_closest_object(nn_results):
