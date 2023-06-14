@@ -1,5 +1,4 @@
 import cv2
-import math
 import dxcam
 import threading
 from pynput.keyboard import Key, Listener as KeyListener
@@ -10,8 +9,6 @@ from custom_sleep import sleep
 ACTIVE_MODE = True
 AIM_MODE = True
 DRAW_MODE = True
-# shift = 26 # зсув на 26 пікслеів нище щоб не записувати верхню рамку вікна (якщо віконний режим)
-# monitor = (0, shift, 1024, 768+shift)
 screen_resolution = (1920, 1080)
 mid_screen_xy = (int(screen_resolution[0]/2), int(screen_resolution[1]/2))
 monitor = (0, 0, *screen_resolution)
