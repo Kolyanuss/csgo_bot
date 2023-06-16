@@ -10,3 +10,4 @@ temp_img/
 *.h5
 *.onnx
 *.pt
+__pycache__/
