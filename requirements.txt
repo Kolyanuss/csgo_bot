@@ -1,0 +1,7 @@
+numpy
+matplotlib
+pyautogui
+opencv-python
+torch
+dxcam
+yolov8
